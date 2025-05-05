@@ -1,108 +1,80 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Poop Tracker</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>💩 Poop Tracker</title>
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
   <style>
     body {
       background-color: #111;
-      color: white;
-      font-family: 'Arial', sans-serif;
+      color: #fff;
+      font-family: Arial, sans-serif;
       text-align: center;
       padding: 20px;
     }
     h1 {
-      font-size: 1.5em;
+      font-size: 2em;
       margin-bottom: 20px;
     }
+    #calendar {
+      max-width: 900px;
+      margin: 40px auto;
+      background-color: #fff;
+      color: #000;
+      border-radius: 10px;
+      padding: 10px;
+    }
     button {
-      padding: 12px 24px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
       background-color: #333;
       color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1em;
       cursor: pointer;
-      margin-bottom: 30px;
     }
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
-      max-width: 350px;
-      margin: 0 auto;
-    }
-    .day {
-      padding: 12px 0;
-      background: #222;
-      border-radius: 6px;
-    }
-    .header {
-      font-weight: bold;
+    button:hover {
+      background-color: #555;
     }
   </style>
 </head>
 <body>
   <h1>💩 Poop Tracker</h1>
   <button onclick="recordPoop()">Record Poop</button>
-
-  <div id="calendar" class="calendar"></div>
+  <div id="calendar"></div>
 
   <script>
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbxOxBZntWVWEzPLoNCIRUSma3F5h7VA9OTgKmboMdMUe4yniFAG6XMG_ONYuCF3e4QVkw/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbxOxBZntWVWEzPLoNCIRUSma3F5h7VA9OTgKmboMdMUe4yniFAG6XMG_ONYuCF3e4QVkw/exec";
+    const poopEmoji = "💩";
+    let calendar;
 
     function recordPoop() {
-      fetch(scriptUrl, { method: "POST" })
-        .then(res => res.text())
-        .then(msg => {
+      fetch(scriptURL, { method: 'POST' })
+        .then(() => {
           alert("💩 기록 완료!");
-          location.reload(); // 새로고침으로 아이콘 갱신
+          const today = new Date().toISOString().split('T')[0];
+          calendar.addEvent({ title: poopEmoji, start: today, allDay: true });
         })
-        .catch(err => alert("오류: " + err));
+        .catch((err) => alert("에러: " + err));
     }
 
-    async function drawCalendar() {
-      const calendarEl = document.getElementById("calendar");
+    document.addEventListener('DOMContentLoaded', function () {
+      const calendarEl = document.getElementById('calendar');
 
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = now.getMonth();
-      const firstDayOfMonth = new Date(year, month, 1).getDay();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-      // Google Sheet에서 💩 날짜 가져오기
-      const res = await fetch(scriptUrl);
-      const text = await res.text();
-      const dates = text.trim().split("\n"); // yyyy-MM-dd
-      const marked = new Set(dates);
-
-      const pad = n => n.toString().padStart(2, "0");
-
-      // 요일 헤더
-      ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(day => {
-        const div = document.createElement("div");
-        div.textContent = day;
-        div.className = "header";
-        calendarEl.appendChild(div);
+      calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: ''
+        },
+        events: [], // 최초엔 비어 있음
       });
 
-      // 빈칸
-      for (let i = 0; i < firstDayOfMonth; i++) {
-        const empty = document.createElement("div");
-        calendarEl.appendChild(empty);
-      }
-
-      // 날짜 출력
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dateStr = `${year}-${pad(month + 1)}-${pad(d)}`;
-        const div = document.createElement("div");
-        div.className = "day";
-        div.innerHTML = marked.has(dateStr) ? "💩" : d;
-        calendarEl.appendChild(div);
-      }
-    }
-
-    drawCalendar();
+      calendar.render();
+    });
   </script>
 </body>
 </html>
