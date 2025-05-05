@@ -65,6 +65,11 @@
       const calendarEl = document.getElementById('calendar');
       const recordBtn = document.getElementById('recordBtn');
 
+      if (!calendarEl || !recordBtn) {
+        alert("요소를 찾을 수 없습니다.");
+        return;
+      }
+
       calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         headerToolbar: {
