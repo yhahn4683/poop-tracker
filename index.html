@@ -35,14 +35,15 @@
       font-size: 1em;
       cursor: pointer;
     }
-    button:hover {
+    button:disabled {
       background-color: #555;
+      cursor: not-allowed;
     }
   </style>
 </head>
 <body>
   <h1>💩 Poop Tracker</h1>
-  <button onclick="recordPoop()">Record Poop</button>
+  <button id="recordBtn" disabled>Record Poop</button>
   <div id="calendar"></div>
 
   <script>
@@ -62,6 +63,7 @@
 
     document.addEventListener('DOMContentLoaded', function () {
       const calendarEl = document.getElementById('calendar');
+      const recordBtn = document.getElementById('recordBtn');
 
       calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
@@ -70,10 +72,14 @@
           center: 'title',
           right: ''
         },
-        events: [], // 최초엔 비어 있음
+        events: [],
       });
 
       calendar.render();
+
+      // 버튼 활성화 및 이벤트 연결
+      recordBtn.disabled = false;
+      recordBtn.addEventListener("click", recordPoop);
     });
   </script>
 </body>
