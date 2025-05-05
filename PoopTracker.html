@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Poop Tracker</title>
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #333;
+      color: white;
+      cursor: pointer;
+      margin-bottom: 30px;
+    }
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      max-width: 350px;
+      margin: 0 auto;
+    }
+    .day {
+      padding: 12px 0;
+      background: #222;
+      border-radius: 6px;
+    }
+    .header {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>💩 Poop Tracker</h1>
+  <button onclick="recordPoop()">Record Poop</button>
+
+  <div id="calendar" class="calendar"></div>
+
+  <script>
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbxOxBZntWVWEzPLoNCIRUSma3F5h7VA9OTgKmboMdMUe4yniFAG6XMG_ONYuCF3e4QVkw/exec";
+
+    function recordPoop() {
+      fetch(scriptUrl, { method: "POST" })
+        .then(res => res.text())
+        .then(msg => {
+          alert("💩 기록 완료!");
+          location.reload(); // 새로고침으로 아이콘 갱신
+        })
+        .catch(err => alert("오류: " + err));
+    }
+
+    async function drawCalendar() {
+      const calendarEl = document.getElementById("calendar");
+
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth();
+      const firstDayOfMonth = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      // Google Sheet에서 💩 날짜 가져오기
+      const res = await fetch(scriptUrl);
+      const text = await res.text();
+      const dates = text.trim().split("\n"); // yyyy-MM-dd
+      const marked = new Set(dates);
+
+      const pad = n => n.toString().padStart(2, "0");
+
+      // 요일 헤더
+      ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(day => {
+        const div = document.createElement("div");
+        div.textContent = day;
+        div.className = "header";
+        calendarEl.appendChild(div);
+      });
+
+      // 빈칸
+      for (let i = 0; i < firstDayOfMonth; i++) {
+        const empty = document.createElement("div");
+        calendarEl.appendChild(empty);
+      }
+
+      // 날짜 출력
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${year}-${pad(month + 1)}-${pad(d)}`;
+        const div = document.createElement("div");
+        div.className = "day";
+        div.innerHTML = marked.has(dateStr) ? "💩" : d;
+        calendarEl.appendChild(div);
+      }
+    }
+
+    drawCalendar();
+  </script>
+</body>
+</html>
