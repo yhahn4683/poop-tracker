@@ -4,8 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>💩 Poop Tracker</title>
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+
+  <!-- FullCalendar v5.11.3 -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 
   <style>
     body {
@@ -36,15 +38,14 @@
       font-size: 1em;
       cursor: pointer;
     }
-    button:disabled {
+    button:hover {
       background-color: #555;
-      cursor: not-allowed;
     }
   </style>
 </head>
 <body>
   <h1>💩 Poop Tracker</h1>
-  <button id="recordBtn" disabled>Record Poop</button>
+  <button onclick="recordPoop()">Record Poop</button>
   <div id="calendar"></div>
 
   <script>
@@ -64,12 +65,6 @@
 
     document.addEventListener('DOMContentLoaded', function () {
       const calendarEl = document.getElementById('calendar');
-      const recordBtn = document.getElementById('recordBtn');
-
-      if (!calendarEl || !recordBtn) {
-        alert("요소를 찾을 수 없습니다.");
-        return;
-      }
 
       calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
@@ -78,14 +73,10 @@
           center: 'title',
           right: ''
         },
-        events: [],
+        events: [] // 초기에는 비어 있음
       });
 
       calendar.render();
-
-      // 버튼 활성화 및 이벤트 연결
-      recordBtn.disabled = false;
-      recordBtn.addEventListener("click", recordPoop);
     });
   </script>
 </body>
