@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>💩 Poop Tracker</title>
-  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
   <style>
     body {
       background-color: #111;
@@ -44,25 +45,12 @@
   <button onclick="recordPoop()">Record Poop</button>
   <div id="calendar"></div>
 
-  <!-- FullCalendar 스크립트 로드 -->
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-
   <script>
     const scriptURL = "https://script.google.com/macros/s/AKfycbxOxBZntWVWEzPLoNCIRUSma3F5h7VA9OTgKmboMdMUe4yniFAG6XMG_ONYuCF3e4QVkw/exec";
     const poopEmoji = "💩";
     let calendar;
 
-    function recordPoop() {
-      fetch(scriptURL, { method: 'POST' })
-        .then(() => {
-          alert("💩 기록 완료!");
-          const today = new Date().toISOString().split('T')[0];
-          calendar.addEvent({ title: poopEmoji, start: today, allDay: true });
-        })
-        .catch((err) => alert("에러: " + err));
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
+    async function loadPoopDatesAndRenderCalendar() {
       const calendarEl = document.getElementById('calendar');
 
       calendar = new FullCalendar.Calendar(calendarEl, {
@@ -75,23 +63,38 @@
         events: []
       });
 
-      // Google Apps Script에서 기록된 날짜 불러오기
-      fetch(scriptURL)
-        .then(response => response.text())
-        .then(text => {
-          const dateList = text.trim().split("\n");
-          dateList.forEach(date => {
+      try {
+        const res = await fetch(scriptURL);
+        const text = await res.text();
+        const dates = text.trim().split("\n");
+
+        dates.forEach(date => {
+          if (date.match(/^\d{4}-\d{2}-\d{2}$/)) {
             calendar.addEvent({
               title: poopEmoji,
               start: date,
               allDay: true
             });
-          });
-        })
-        .catch(err => console.error("기록 불러오기 오류:", err));
+          }
+        });
+      } catch (err) {
+        console.error("날짜 불러오기 실패:", err);
+      }
 
       calendar.render();
-    });
+    }
+
+    function recordPoop() {
+      fetch(scriptURL, { method: 'POST' })
+        .then(() => {
+          alert("💩 기록 완료!");
+          const today = new Date().toISOString().split('T')[0];
+          calendar.addEvent({ title: poopEmoji, start: today, allDay: true });
+        })
+        .catch(err => alert("에러 발생: " + err));
+    }
+
+    document.addEventListener('DOMContentLoaded', loadPoopDatesAndRenderCalendar);
   </script>
 </body>
 </html>
